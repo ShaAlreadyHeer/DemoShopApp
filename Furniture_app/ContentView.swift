@@ -8,28 +8,13 @@
 import SwiftUI
 
 struct ContentView: View {
-    private let categories = ["All","Spices","Dairy","Naan","Fruit & Veggies"]
+
     var body: some View {
-        ZStack{
-            Color(.lightGray)
-                .edgesIgnoringSafeArea(.all)
-                VStack (alignment: .leading){
-                AppBarView()
-                TagLineView()
-                    .padding()
-                SearchBarView()
-                
-                HStack{
-                    ForEach(0 ..< categories.count) { i in
-                        //If Index == 1 then isActive is true
-                    CategoryView(isActive: i == 1, text: categories[i])
-                    }
-                }
-                
-            }
+        VStack {
+            HomeScreen()
+        }
         }
     }
-}
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
@@ -106,7 +91,7 @@ struct CategoryView: View {
                 Text(text)
                     .font(.system(size: 18))
                     .fontWeight(.medium)
-                    .foregroundColor(Color("Primary"))
+                    .foregroundColor(isActive ? Color("Primary"): Color.black.opacity(0.5))
                 
                 if(isActive){
                 Color("Primary")
@@ -115,6 +100,124 @@ struct CategoryView: View {
                 }
             }
             .padding(.trailing)
+        }
+    }
+}
+
+struct ProductCardView: View {
+    let image:Image
+    let size:CGFloat
+    var body: some View {
+        VStack {
+            Image("ChaatMasala")
+                .resizable()
+                .frame(width: size, height: 200 * (size/210))
+                .cornerRadius(20.0)
+            
+            Text("Shan Chaat Masala")
+                .font(.title3)
+                .fontWeight(.bold)
+            HStack (spacing: 2){
+                ForEach(0 ..< 5){item in
+                    Image("star")
+                }
+                Spacer()
+                
+                Text("$2.99")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                
+            }
+        }
+        .frame(width:size)
+        .padding()
+        .background(Color.white)
+        .cornerRadius(20.0)
+    }
+}
+
+struct BottomNavBarItem: View {
+    let image: Image
+    let action: ()-> Void
+    var body: some View {
+        Button(action: action,label:{
+            image.frame(maxWidth:.infinity)
+        }
+        )
+    }
+}
+
+struct HomeScreen: View {
+    private let categories = ["All","Spices","Dairy","Naan","Fruit & Veggies","Placeholder","Extras"]
+    @State private var selectedIndex: Int = 0
+    var body: some View {
+        ZStack{
+            Color(.lightGray)
+                .edgesIgnoringSafeArea(.all)
+            
+            //Popular and New Stock
+            ScrollView {
+                VStack (alignment: .leading){
+                    AppBarView()
+                    TagLineView()
+                        .padding()
+                    SearchBarView()
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack{
+                            ForEach(0 ..< categories.count) { i in
+                                //If Index == 1 then isActive is true
+                                CategoryView(isActive: i == selectedIndex, text: categories[i])
+                                    .onTapGesture{selectedIndex = i}
+                            }
+                        }
+                        .padding()
+                    }
+                    
+                    Text("Popular")
+                        .font(.custom("PlayfairDisplay-bold",size: 24))
+                        .padding(.horizontal)
+                    
+                    ScrollView(.horizontal,showsIndicators: false){
+                        HStack{
+                            ForEach(0 ..< 4){index in
+                                ProductCardView(image:Image("ChaatMasala_\(index + 1)"),size: 210)
+                            }
+                            .padding(.trailing)
+                        }
+                        .padding(.leading)
+                    }
+                    
+                    Text("Popular")
+                        .font(.custom("PlayfairDisplay-bold",size: 24))
+                        .padding(.horizontal)
+                    
+                    ScrollView(.horizontal,showsIndicators: false){
+                        HStack{
+                            ForEach(0 ..< 4){index in
+                                ProductCardView(image:Image("ChaatMasala_\(index + 1)"),size: 180)
+                            }
+                            .padding(.trailing)
+                        }
+                        .padding(.leading)
+                    }
+                }
+            }
+            
+            //Custom Navigation Bar
+            
+            HStack{
+                BottomNavBarItem(image:Image("Home")){}
+                BottomNavBarItem(image:Image("Heart")){}
+                BottomNavBarItem(image:Image("Shop")){}
+                BottomNavBarItem(image:Image("User")){}
+            }
+            .padding()
+            .background(Color.white)
+            .clipShape(Capsule())
+            .padding(.horizontal)
+            .shadow(color: Color.black.opacity(0.50), radius: 8, x: 2, y: 6)
+            .frame(maxHeight:.infinity,alignment: .bottom)
         }
     }
 }
